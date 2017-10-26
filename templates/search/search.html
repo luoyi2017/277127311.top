@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load highlight %}
+
+{#由于 haystack 对搜索结果做了分页，传给模板的变量是一个 page 对象，所以我们从 page 中取出这一页对应的搜索结果，然后对其循环显示，即 {% for result in page.object_list %}。另外要取得 Post（文章）以显示文章的数据如标题、正文，需要从 result 的 object 属性中获取。query 变量的值即为用户搜索的关键词。#}
+
+{% block main %}
+  {% if query %}
+      {% for result in page.object_list %}
+        <!--文章详情开始-->
+        <div class="col-xs-12 blog-default blog-height-3">
+          <div class="row">
+            <div class="col-sm-12">
+              <h3 class="blog-center"><a href="{{ result.object.get_absolute_url }}">{% highlight result.object.title with query %}</a></h3>
+            </div>
+            <div class="col-sm-12 blog-btn-1 blog-center">
+              <button type="button" class="btn btn-default blog-btn-2">
+                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                <a href="#">{{ result.object.created_time }}</a>
+              </button>
+              <button type="button" class="btn btn-default blog-btn-2">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                <a href="{{ result.object.get_absolute_url }}">{{ result.object.views }} 阅读</a>
+              </button>
+              <button type="button" class="btn btn-default blog-btn-2">
+                <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                <a href="{{ result.object.get_absolute_url }}">{{ result.object.comment_set.count }} 评论</a>
+              </button>
+              <button type="button" class="btn btn-default blog-btn-2">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                {% for tag in result.object.tags.all %}
+                  <a href="{% url 'blog:tag' tag.pk %}">&nbsp{{ tag.name }}</a>
+                {% endfor %}
+              </button>
+            </div>
+            <div class="col-sm-12">
+              {# Django 出于安全方面的考虑，任何的 HTML 代码在 Django 的模板中都会被转义（即显示原始的 HTML 代码，而不是经浏览器渲染后的格式）。为了解除转义，只需在模板标签使用 safe 过滤器即可，告诉 Django，这段文本是安全的，你什么也不用做。#}
+              <p>{% highlight result.object.body with query %}</p>
+            </div>
+          </div>
+        </div>
+        <!--文章详情结束-->
+      {% empty %}
+          <div>没有搜索到你想要的结果！</div>
+      {% endfor %}
+      {% if page.has_previous or page.has_next %}
+          <div>
+              {% if page.has_previous %}
+                  <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous
+              {% if page.has_previous %}</a>{% endif %}
+              |
+              {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next
+              &raquo;{% if page.has_next %}</a>{% endif %}
+          </div>
+      {% endif %}
+  {% else %}
+      请输入搜索关键词，例如 django
+  {% endif %}
+{% endblock main %}

@@ -1,0 +1,297 @@
+{#为了能在模板中使用 {% static %} 模板标签，别忘了在最顶部 {% load staticfiles %} 。static 模板标签位于 staticfiles 模块中，只有通过 load 模板标签将该模块引入后，才能在模板中使用 {% static %} 标签。#}
+{% load staticfiles %}
+{#为了使用自定义模板标签，我们首先需要在模板中导入存放这些模板标签的模块，这里是 blog_tags.py 模块。#}
+{% load blog_tags %}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Css -->
+{#  用 {{ }} 包裹起来的叫做模板变量，其作用是在最终渲染的模板里显示由视图函数传过来的变量值。#}
+{#  用 {% %} 包裹起来的叫做模板标签，功能则类似于函数，例如这里的 static 模板标签，它把跟在后面的字符串 'css/bootstrap.min.css' 转换成正确的文件引入路径。 #}
+{#  {% static %} 标签的作用实际就是把后面的字符串加了一个 /static/ 前缀#}
+{#  /static/ 前缀是我们在 settings.py 文件中通过 STATIC_URL = '/static/' 指定的#}
+{#为什么要使用 {% static %} 标签呢？如果哪一天因为某些原因，需要把 /static/ 改成 /resource/，那么只要在 settings.py 处改一个地方就可以了，即把 STATIC_URL = '/static/' 改成 STATIC_URL = '/resource/'。#}
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'blog/css/blog_base.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/highlights/vs.css' %}">
+    <style>
+      span.highlighted {
+        color: red;
+      }
+{#      将评论栏拉宽#}
+      textarea {
+        overflow: auto;
+        width: 100%;
+      }
+    </style>
+{#代码没有高亮? 请依次检查以下步骤：#}
+{#确保在渲染文本时添加了 markdown.extensions.codehilite 拓展。#}
+{#确保安装了 Pygments。#}
+{#确保代码块的 Markdown 语法正确，特别是指明该代码块的语言类型。#}
+{#在浏览器端代码块的源代码，看代码是否被 pre 标签包裹，并且代码的每一个单词都被 span 标签包裹，且有一个 class 属性值。如果没有，极有可能是前三步中某个地方出了问题。#}
+{#确保用于代码高亮的样式文件被正确地引入。#}
+{#有些样式文件可能对代码高亮没有作用，首先尝试用 github.css 样式文件做测试。#}
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <!--置顶按钮开始-->
+    <div class="container">
+      <button type="button" class="btn btn-default pull-left">
+        <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 欢迎光临！
+        <a href="{% url 'rss' %}">RSS 订阅</a>
+      </button>
+      <a href="#">
+        <button type="button" class="btn btn-default pull-right">
+          <span class="glyphicon glyphicon-user" aria-hidden="true"></span> 登录
+        </button>
+      </a>
+      <a href="#">
+        <button type="button" class="btn btn-default pull-right">
+          <span class="glyphicon glyphicon-th" aria-hidden="true"></span>
+        </button>
+      </a>
+      <a href="#">
+        <button type="button" class="btn btn-default pull-right">
+          <span class="glyphicon glyphicon-film" aria-hidden="true"></span>
+        </button>
+      </a>
+      <a href="#">
+        <button type="button" class="btn btn-default pull-right">
+          <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+        </button>
+      </a>
+    </div>
+    <!--置顶按钮结束-->
+
+    <!--导航栏开始-->
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <!-- 博客图标开始 -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{% url 'blog:index' %}">Ly-Blog</a>
+        </div>
+        <!-- 博客图标结束 -->
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+{#          此处待完善#}
+          <form class="navbar-form navbar-right" method="get" id="searchform" action="{% url 'haystack_search' %}">
+            <div class="form-group">
+              <input type="text" class="form-control" name="q" placeholder="Search">
+            </div>
+            <button type="submit" class="btn btn-default">搜索</button>
+          </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="{% url 'blog:index' %}">首页<span class="sr-only">(current)</span></a></li>
+            <!--<li class="dropdown">-->
+              <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">编程学习<span class="caret"></span></a>-->
+              <!--<ul class="dropdown-menu">-->
+                <!--<li><a href="#">Python</a></li>-->
+                <!--<li role="separator" class="divider"></li>-->
+                <!--<li><a href="#">Linux</a></li>-->
+                <!--<li role="separator" class="divider"></li>-->
+                <!--<li><a href="#">web前端</a></li>-->
+                <!--<li role="separator" class="divider"></li>-->
+                <!--<li><a href="#">web后台</a></li>-->
+                <!--<li role="separator" class="divider"></li>-->
+                <!--<li><a href="#">数据库</a></li>-->
+              <!--</ul>-->
+            <!--</li>-->
+            {% get_categories as category_list %}
+            {% for category in category_list %}
+              <li>
+                <a href="{% url 'blog:category' category.pk %}">
+                  {{ category.name }}
+                </a>
+              </li>
+            {% empty %}
+              <li><a href="#">暂无分类</a></li>
+            {% endfor %}
+{#            <li><a href="#">编程学习</a></li>#}
+{#            <li><a href="#">网站建设</a></li>#}
+{#            <li><a href="#">工具软件</a></li>#}
+{#            <li><a href="#">时间树</a></li>#}
+          </ul>
+
+        </div><!-- /.navbar-collapse -->
+      </div>
+    </nav>
+    <!--导航栏结束-->
+
+<!--主体开始-->
+<div class="container">
+  <div class="row">
+    <!--左侧开始-->
+    <div class="col-xs-12 col-sm-8">
+      {# 这里 block 也是一个模板标签，其作用是占位。比如这里的 {% block main %}{% endblock main %} 是一个占位框，main 是我们给这个 block 取的名字。#}
+      {% block main %}
+      {% endblock main %}
+    </div>
+    <!--左侧结束-->
+
+    <!--右侧开始-->
+    <div class="col-xs-12 col-sm-4">
+      <div class="row">
+
+        <div class="col-sm-11 col-sm-offset-1 blog-height-2 blog-default">
+          <div class="row">
+            <div class="col-sm-12 blog-height-6" style="background:url(http://owgisv3lp.bkt.clouddn.com/blog/blog_00001.jpg) no-repeat center center;">
+            </div>
+            <div class="col-sm-12">
+              <div class="row">
+                <div class="text-center">
+                  <a href="https://github.com/luoyi2017">
+                    <img class="blog-img-2 img-circle" src="http://owgisv3lp.bkt.clouddn.com/blog/github_cat.jpg" alt="">
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="row">
+                <h4 class="text-center">Learn Python</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--最新文章开始-->
+        <div class="col-sm-11 col-sm-offset-1 blog-height-3">
+          <div class="row">
+            <div class="list-group">
+              <a href="#" class="list-group-item active">
+                <button type="button" class="btn btn-default">
+                  <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </button>
+                &nbsp&nbsp最新文章
+              </a>
+              {% get_recent_articles as recent_article_list %}
+              {% for article in recent_article_list %}
+                <a href="{{ article.get_absolute_url }}" class="list-group-item">{{ article.title }}</a>
+              {% empty %}
+                暂无文章！
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <!--最新文章结束-->
+
+        <!--标签云开始-->
+        <div class="col-sm-11 col-sm-offset-1 blog-height-3">
+          <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <button type="button" class="btn btn-default">
+                  <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </button>
+                &nbsp&nbsp标签云
+              </div>
+              <div class="panel-body">
+                {% get_tags as tag_list %}
+                {% for tag in tag_list %}
+                  <a href="{% url 'blog:tag' tag.pk %}"><span class="label label-default">{{ tag.name }}</span></a>
+                {% empty %}
+                暂无标签！
+                {% endfor %}
+{#                <a href=""><span class="label label-default">Python</span></a>#}
+{#                <a href=""><span class="label label-default">Django</span></a>#}
+{#                <a href=""><span class="label label-default">CSS</span></a>#}
+{#                <a href=""><span class="label label-default">前端</span></a>#}
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--标签云结束-->
+
+
+        <!--归档文章开始-->
+        <div class="col-sm-11 col-sm-offset-1 blog-height-3">
+          <div class="row">
+            <div class="list-group">
+              <a href="#" class="list-group-item active">
+                <button type="button" class="btn btn-default">
+                  <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </button>
+                &nbsp&nbsp文章归档
+              </a>
+              {% archives as date_list %}
+              {% for date in date_list %}
+                <a href="{% url 'blog:archives' date.year date.month %}" class="list-group-item">{{ date.year }} 年 {{ date.month }} 月</a>
+              {% empty %}
+              暂无归档！
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <!--归档文章结束-->
+
+
+      </div>
+    </div>
+    <!--右侧结束-->
+  </div>
+</div>
+<!--主体结束-->
+
+
+<!--页尾开始-->
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-12 blog-height-4 blog-default-2">
+      <div class="container blog-padding-2">
+        <div class="row">
+          <!--<div class="col-xs-12 col-sm-6">-->
+            <!--<ul class="list-unstyled">-->
+              <!--<li><a href="#">link</a></li>-->
+              <!--<li><a href="#">link</a></li>-->
+              <!--<li><a href="#">link</a></li>-->
+              <!--<li><a href="#">link</a></li>-->
+            <!--</ul>-->
+          <!--</div>-->
+          <div class="col-xs-12 col-sm-4"></div>
+
+          <div class="col-xs-12 col-sm-8 ">
+            <h4>关于博客：</h4>
+            <p class="blog-p">本博为练手之作，当前为第一版，有待完善。</p>
+            <p class="blog-p">前端采用Bootstrap；后端使用Django框架，学自
+              <a href="http://zmrenwu.com/post/2/">追梦人物</a>的博客。
+            </p>
+            <p class="blog-p">本博客部署于搬瓦工。</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!--页尾结束-->
+
+
+
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </body>
+</html>

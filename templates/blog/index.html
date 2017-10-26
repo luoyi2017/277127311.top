@@ -1,0 +1,141 @@
+{#在文件最顶部使用 {% extends 'base.html' %} 继承自 base.html，这样就把 base.html 里的代码继承了过来#}
+{#可以把这种继承和 Python 中类的继承类比。base.html 就是父类，index.html 就是子类。index.html 继承了 base.html 中的全部内容，同时它自身还有一些内容，这些内容就通过 “覆写” {% block main %}{% endblock main %}（把 block 看做是父类的属性）的内容添加即可。#}
+{% extends 'base.html' %}
+
+
+{% block main %}
+  <div class="row">
+    <!--文章摘要3开始-->
+    {% if error_msg %}
+        <p>{{ error_msg }}</p>
+    {% endif %}
+    {% for article in article_list %}
+      <div class="col-xs-12 blog-default blog-height-3">
+      <div class="row">
+        <div class="col-sm-4">
+          <img class="blog-img blog-padding-1" src="http://owgisv3lp.bkt.clouddn.com/scenery/201710152238.jpg" alt="">
+        </div>
+        <div class="col-sm-8">
+          <h3 class="blog-head"><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
+          <p>{{ article.body|truncatechars:200 }}</p>
+        </div>
+        <div class="col-sm-12 blog-btn-1">
+          <button type="button" class="btn btn-default blog-btn-2 pull-left">
+            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+            <a href="{% url 'blog:archives' article.created_time.year article.created_time.month %}">{{ article.created_time }}</a>
+          </button>
+          <button type="button" class="btn btn-default blog-btn-2 pull-left">
+            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            <a href="#">{{ article.views }} 阅读</a>
+          </button>
+          <button type="button" class="btn btn-default blog-btn-2 pull-left">
+            <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+            <a href="{{ article.get_absolute_url }}">{{ article.comment_set.count }}评论</a>
+          </button>
+          <button type="button" class="btn btn-default blog-btn-2 pull-left">
+{#            <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>#}
+{#            <a href="{% url 'blog:category' article.category.pk %}">{{ article.category.name }}</a>#}
+            <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+            {% for tag in article.tags.all %}
+              <a href="{% url 'blog:tag' tag.pk %}">&nbsp{{ tag.name }}</a>
+            {% endfor %}
+          </button>
+
+          <button type="button" class="btn btn-default blog-btn-2 pull-right">
+            <a href="{{ article.get_absolute_url }}">阅读全文</a>
+             <span class="glyphicon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      暂时还没有发布的文章！
+    {% endfor %}
+
+    <!--文章摘要3结束-->
+
+    <!--分页开始-->
+    <div class="col-xs-12 col-sm-8 col-sm-offset-4 ">
+      <nav aria-label="Page navigation">
+
+{#ListView 传递了以下和分页有关的模板变量供我们在模板中使用：#}
+{#paginator ，即 Paginator 的实例。#}
+{#page_obj ，当前请求页面分页对象。#}
+{#is_paginated，是否已分页。只有当分页后页面超过两页时才算已分页。#}
+{#object_list，请求页面的对象列表，和 post_list 等价。所以在模板中循环文章列表时可以选 post_list ，也可以选 object_list。#}
+{#    {% if is_paginated %}#}
+{#        <!-- 如果当前页还有上一页，显示一个上一页的按钮 -->#}
+{#        {% if page_obj.has_previous %}#}
+{#            <a href="?page={{ page_obj.previous_page_number }}">上一页</a>#}
+{#        {% endif %}#}
+{#            <!-- 显示当前页面信息 -->#}
+{#            <span class="current">第 {{ page_obj.number }} 页 / 共 {{ paginator.num_pages }} 页</span>#}
+{#        <!-- 如果当前页还有下一页，显示一个下一页的按钮 -->#}
+{#        {% if page_obj.has_next %}#}
+{#            <a href="?page={{ page_obj.next_page_number }}">下一页</a>#}
+{#        {% endif %}#}
+{#        </div>#}
+{#    {% endif %}#}
+{#    -->#}
+
+        <ul class="pagination">
+        {% if is_paginated %}
+          {% if first %}
+            <li><a href="?page=1">1</a></li>
+
+          {% endif %}
+          {% if left %}
+            {% if left_has_more %}
+              <li><span>...</span></li>
+
+            {% endif %}
+            {% for i in left %}
+              <li><a href="?page={{ i }}">{{ i }}</a></li>
+
+            {% endfor %}
+          {% endif %}
+          <li><a href="?page={{ page_obj.number }}" style="background-color: #eee;">{{ page_obj.number }}</a></li>
+
+          {% if right %}
+            {% for i in right %}
+              <li><a href="?page={{ i }}">{{ i }}</a></li>
+
+            {% endfor %}
+            {% if right_has_more %}
+              <li><span>...</span></li>
+
+            {% endif %}
+          {% endif %}
+          {% if last %}
+            <li><a href="?page={{ paginator.num_pages }}">{{ paginator.num_pages }}</a></li>
+
+          {% endif %}
+        {% endif %}
+        </ul>
+
+        <br>
+
+{#        <ul class="pagination">#}
+{#          <li>#}
+{#            <a href="#" aria-label="Previous">#}
+{#              <span aria-hidden="true">&laquo;</span>#}
+{#            </a>#}
+{#          </li>#}
+{#          <li><a href="#">1</a></li>#}
+{#          <li><a href="#">2</a></li>#}
+{#          <li><a href="#">3</a></li>#}
+{#          <li><a href="#">4</a></li>#}
+{#          <li><a href="#">5</a></li>#}
+{#          <li>#}
+{#            <a href="#" aria-label="Next">#}
+{#              <span aria-hidden="true">&raquo;</span>#}
+{#            </a>#}
+{#          </li>#}
+{#        </ul>#}
+      </nav>
+    </div>
+    <!--分页结束-->
+
+  </div>
+{% endblock main %}
+

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block main %}
+  <div class="row">
+    <!--文章详情开始-->
+    <div class="col-xs-12 blog-default blog-height-3">
+      <div class="row">
+        <div class="col-sm-12">
+          <h3 class="blog-center"><a href="">{{ article.title }}</a></h3>
+        </div>
+        <div class="col-sm-12 blog-btn-1 blog-center">
+          <button type="button" class="btn btn-default blog-btn-2">
+            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+            <a href="{% url 'blog:archives' article.created_time.year article.created_time.month %}">{{ article.created_time }}</a>
+          </button>
+{#          <button type="button" class="btn btn-default blog-btn-2">#}
+{#            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>#}
+{#            <a href="#">{{ article.author }}</a>#}
+{#          </button>#}
+          <button type="button" class="btn btn-default blog-btn-2">
+            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            <a href="#">{{ article.views }} 阅读</a>
+          </button>
+          <button type="button" class="btn btn-default blog-btn-2">
+            <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+            <a href="{{ article.get_absolute_url }}">{{ article.comment_set.count }}评论</a>
+          </button>
+          <button type="button" class="btn btn-default blog-btn-2">
+            <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+            {% for tag in article.tags.all %}
+              <a href="{% url 'blog:tag' tag.pk %}">&nbsp{{ tag.name }}</a>
+            {% endfor %}
+          </button>
+        </div>
+        <div class="col-sm-12">
+          {# Django 出于安全方面的考虑，任何的 HTML 代码在 Django 的模板中都会被转义（即显示原始的 HTML 代码，而不是经浏览器渲染后的格式）。为了解除转义，只需在模板标签使用 safe 过滤器即可，告诉 Django，这段文本是安全的，你什么也不用做。#}
+          <p>{{ article.body|safe }}</p>
+        </div>
+      </div>
+    </div>
+    <!--文章详情结束-->
+
+    <!--评论开始-->
+    <div class="col-xs-12 blog-default blog-height-3">
+      <div class="row">
+        <div class="col-sm-12">
+          <h4>发表评论</h4>
+          <form action="{% url 'comments:article_comment' article.pk %}" method="post" class="comment-form">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-4">
+                <label for="{{ form.name.id_for_label }}">名字：</label>
+    {#            {{ form.name }}、{{ form.email }}、{{ form.url }} 等将自动渲染成表单控件，例如 <input> 控件。#}
+                {{ form.name }}
+    {#            {{ form.name.errors }}、{{ form.email.errors }} 等将渲染表单对应字段的错误（如果有的话），例如用户 email 格式填错了，那么 Django 会检查用户提交的 email 的格式，然后将格式错误信息保存到 errors 中，模板便将错误信息渲染显示。#}
+                {{ form.name.errors }}
+              </div>
+              <div class="col-md-4">
+                <label for="{{ form.email.id_for_label }}">邮箱：</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+              </div>
+              <div class="col-md-4">
+                <label for="{{ form.url.id_for_label }}">URL：</label>
+                {{ form.url }}
+                {{ form.url.errors }}
+              </div>
+              <div class="col-md-12">
+                <label for="{{ form.text.id_for_label }}">评论：</label>
+                <br>
+                {{ form.text }}
+                {{ form.text.errors }}
+                <br>
+                <button type="submit" class="comment-btn">发表</button>
+              </div>
+            </div>    <!-- row -->
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-12 blog-default blog-height-3">
+      <div class="row">
+        <div class="col-sm-12">
+          <h4>评论列表，共 <span>{{ article.comment_set.count }}</span> 条评论</h4>
+          <ul class="comment-list list-unstyled">
+            {% for comment in comment_list %}
+            <li class="comment-item">
+              <span class="nickname">{{ comment.name }}</span>
+              <time class="submit-date">{{ comment.created_time }}</time>
+              <div class="text">
+                {{ comment.text }}
+              </div>
+            </li>
+            {% empty %}
+            暂无评论
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--评论结束-->
+
+  </div>
+{% endblock main %}
