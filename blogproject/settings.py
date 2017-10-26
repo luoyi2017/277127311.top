@@ -30,7 +30,7 @@ SECRET_KEY = 'k45wv%%@!dj3@5d6rw)uznp7zybeax_ypq-t#xqmqx4y$_6z^*'
 # ALLOWED_HOSTS = []
 
 # 增加
-import socket
+# import socket
 
 # SITE_ID = 1
 
@@ -39,36 +39,41 @@ import socket
 # PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 # 得到主机名
-def hostname():
-    sys = os.name
-    if sys == 'nt':
-        hostname = os.getenv('computername')
-        return hostname
-
-    elif sys == 'posix':
-        host = os.popen('echo $HOSTNAME')
-        try:
-            hostname = host.read()
-            return hostname
-        finally:
-            host.close()
-    else:
-        raise RuntimeError('Unkwon hostname')
+# def hostname():
+#     sys = os.name
+#     if sys == 'nt':
+#         hostname = os.getenv('computername')
+#         return hostname
+#
+#     elif sys == 'posix':
+#         host = os.popen('echo $HOSTNAME')
+#         try:
+#             hostname = host.read()
+#             return hostname
+#         finally:
+#             host.close()
+#     else:
+#         raise RuntimeError('Unkwon hostname')
 
 #调试和模板调试配置
 #主机名相同则为开发环境，不同则为部署环境
 #ALLOWED_HOSTS只在调试环境中才能为空
-if socket.gethostname().lower() == hostname().lower():
-    DEBUG = TEMPLATE_DEBUG = True
-    ALLOWED_HOSTS = []
-else:
+# if socket.gethostname().lower() == hostname().lower():
+#     DEBUG = TEMPLATE_DEBUG = True
+#     ALLOWED_HOSTS = []
+# else:
     # ALLOWED_HOSTS 是允许访问的域名列表，域名前加一个点表示允许访问该域名下的子域名，比如 www.zmrenwu.com、test.zmrenwu.com 等二级域名同样允许访问。如果不加前面的点则只允许访问 zmrenwu.com。
-    ALLOWED_HOSTS = [
-        '.277127311.top',
-        '127.0.0.1',
-        'localhost ',
-    ]
-    DEBUG = TEMPLATE_DEBUG = False
+    # ALLOWED_HOSTS = [
+    #     '.277127311.top',
+    #     '127.0.0.1',
+    #     'localhost ',
+    # ]
+    # DEBUG = TEMPLATE_DEBUG = False
+
+DEBUG = False
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost ', '.277127311.top']
+
 
 #数据库配置
 MYDB = {
